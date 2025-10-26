@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: openai-tool
+  name: openai-tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openai-tool
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: openai-tool
+    spec:
+      containers:
+      - image: python
+        command: [bash, -c, "wget https://github.com/open-webui/openapi-servers/archive/refs/heads/main.zip && unzip main.zip && cd openapi-servers-main/servers/weather/ && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --reload" ]
+        name: python-slim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: openai-tool
+  name: openai-tool
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: openai-tool
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openai-tool-ingress
+  annotations:
+    appgw.ingress.kubernetes.io/frontend-port: "8000"
+    alb.ingress.kubernetes.io/frontend-port: "8000"
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: openai-tool
+              port:
+                number: 8000

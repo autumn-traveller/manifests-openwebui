@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ollama-deployment
+  name: ollama-deployment
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - image: ollama/ollama
+        name: ollama-serve
+        ports:
+          - containerPort: 11434
+        readinessProbe:
+          tcpSocket:
+            port: 11434
+        volumeMounts:
+        - name: ollama-mount
+          mountPath: /root/.ollama 
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "8Gi"
+      initContainers:
+      - image: ollama/ollama
+        name: ollama-pull
+        command: ["bash", "-c", "ollama serve & sleep 3s; ollama pull qwen2.5:0.5b; exit" ]
+        volumeMounts:
+        - name: ollama-mount
+          mountPath: /root/.ollama 
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "8Gi"
+      volumes:
+        - name: ollama-mount
+          persistentVolumeClaim:
+            claimName: ollama-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-claim
+  labels:
+    app: ollama
+spec:
+  storageClassName: auto-ebs-sc
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi # 8Gi
+    limits:
+      storage: 16Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ollama
+  name: ollama-svc
+spec:
+  type: ClusterIP
+  ports:
+  - port: 11434 # target the service here
+    protocol: TCP
+    targetPort: 11434
+  selector:
+    app: ollama
+status:
+  loadBalancer: {}
