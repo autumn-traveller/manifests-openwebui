@@ -85,5 +85,3 @@ spec:
     targetPort: 11434
   selector:
     app: ollama
-status:
-  loadBalancer: {}

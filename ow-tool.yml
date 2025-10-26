@@ -39,8 +39,6 @@ kind: Ingress
 metadata:
   name: openai-tool-ingress
   annotations:
-    appgw.ingress.kubernetes.io/frontend-port: "8000"
-    alb.ingress.kubernetes.io/frontend-port: "8000"
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
 spec:
