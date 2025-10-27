@@ -9,7 +9,6 @@ spec:
   selector:
     matchLabels:
       app: openai-tool
-  strategy: {}
   template:
     metadata:
       labels:
@@ -17,7 +16,7 @@ spec:
     spec:
       containers:
       - image: python
-        command: [bash, -c, "wget https://github.com/open-webui/openapi-servers/archive/refs/heads/main.zip && unzip main.zip && cd openapi-servers-main/servers/weather/ && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --reload" ]
+        command: [bash, -c, "wget https://github.com/open-webui/openapi-servers/archive/refs/heads/main.zip && unzip main.zip && cd openapi-servers-main/servers/time/ && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --reload" ]
         name: python-slim
 ---
 apiVersion: v1
