@@ -5,7 +5,7 @@ metadata:
     app: openai-tool
   name: openai-tool
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: openai-tool
