@@ -23,7 +23,12 @@ spec:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 180
+          periodSeconds: 15
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 180
           periodSeconds: 15
         resources:
           requests:
